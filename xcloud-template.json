@@ -39,15 +39,6 @@
       "generate": true,
       "generate_length": 24,
       "group": "credentials"
-    },
-    {
-      "key": "database_index",
-      "label": "Default Database Index",
-      "type": "number",
-      "required": false,
-      "default": "0",
-      "validation": "integer|min:0|max:15",
-      "group": "credentials"
     }
   ],
 
@@ -55,9 +46,7 @@
     { "key": "credentials", "label": "Connection Credentials", "icon": "xcloud xc-key" }
   ],
 
-  "environment_map": {
-    "REDIS_DATABASE_INDEX": "{{ database_index }}"
-  },
+  "environment_map": {},
 
   "secrets": {
     "REDIS_PASSWORD": "{{ admin_password }}"
@@ -67,14 +56,13 @@
 
   "credentials": {
     "type": "connection_string",
-    "template": "redis://:{{ admin_password }}@{{ server_ip }}:{{ ports.redis }}/{{ database_index | default:\"0\" }}",
+    "template": "redis://:{{ admin_password }}@{{ server_ip }}:{{ ports.redis }}/0",
     "display": [
       { "label": "Host", "value": "{{ server_ip }}" },
       { "label": "Port", "value": "{{ ports.redis }}" },
-      { "label": "Database Index", "value": "{{ database_index | default:\"0\" }}" },
       { "label": "Password", "value": "{{ admin_password }}", "secret": true }
     ],
-    "copyable": "redis://:{{ admin_password }}@{{ server_ip }}:{{ ports.redis }}/{{ database_index | default:\"0\" }}"
+    "copyable": "redis://:{{ admin_password }}@{{ server_ip }}:{{ ports.redis }}/0"
   },
 
   "health_check": {
