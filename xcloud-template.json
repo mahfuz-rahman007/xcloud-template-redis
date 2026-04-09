@@ -1,0 +1,116 @@
+{
+  "schema_version": "1.0",
+  "slug": "redis",
+  "name": "Redis",
+  "description": "In-memory data store for caching, queues, pub/sub, and fast key-value workloads.",
+  "version": "1.0.0",
+  "app_version": "8.6",
+  "icon": "assets/icon.png",
+  "category": "database",
+  "service_class": "data_service",
+  "tags": ["database", "cache", "redis", "key-value", "queue"],
+  "website": "https://redis.io/",
+
+  "requirements": {
+    "min_ram_mb": 256,
+    "min_cpu_cores": 1,
+    "min_disk_gb": 1,
+    "stack": ["docker_nginx"],
+    "singleton": false
+  },
+
+  "ports": {
+    "redis": {
+      "description": "Redis connection",
+      "container_port": 6379,
+      "protocol": "tcp",
+      "proxy": false,
+      "visibility": "private"
+    }
+  },
+
+  "fields": [
+    {
+      "key": "admin_password",
+      "label": "Redis Password",
+      "type": "password",
+      "required": true,
+      "validation": "string|min:8|max:64",
+      "generate": true,
+      "generate_length": 24,
+      "group": "credentials"
+    },
+    {
+      "key": "database_index",
+      "label": "Default Database Index",
+      "type": "number",
+      "required": false,
+      "default": "0",
+      "validation": "integer|min:0|max:15",
+      "group": "credentials"
+    }
+  ],
+
+  "field_groups": [
+    { "key": "credentials", "label": "Connection Credentials", "icon": "xcloud xc-key" }
+  ],
+
+  "environment_map": {
+    "REDIS_DATABASE_INDEX": "{{ database_index }}"
+  },
+
+  "secrets": {
+    "REDIS_PASSWORD": "{{ admin_password }}"
+  },
+
+  "generated_values": {},
+
+  "credentials": {
+    "type": "connection_string",
+    "template": "redis://:{{ admin_password }}@{{ server_ip }}:{{ ports.redis }}/{{ database_index | default:\"0\" }}",
+    "display": [
+      { "label": "Host", "value": "{{ server_ip }}" },
+      { "label": "Port", "value": "{{ ports.redis }}" },
+      { "label": "Database Index", "value": "{{ database_index | default:\"0\" }}" },
+      { "label": "Password", "value": "{{ admin_password }}", "secret": true }
+    ],
+    "copyable": "redis://:{{ admin_password }}@{{ server_ip }}:{{ ports.redis }}/{{ database_index | default:\"0\" }}"
+  },
+
+  "health_check": {
+    "type": "tcp",
+    "port": "redis",
+    "timeout_seconds": 60
+  },
+
+  "backup": {
+    "strategy": "volume",
+    "volumes": ["redis_data"]
+  },
+
+  "network": {
+    "default_visibility": "private",
+    "allow_external_access": true,
+    "external_access_requires_confirmation": true,
+    "ip_whitelist_support": true,
+    "firewall_rules": [
+      { "port": "redis", "allow_from": "server_only" }
+    ]
+  },
+
+  "volumes": {
+    "persistent": ["redis_data"]
+  },
+
+  "post_install": {
+    "message": "Redis is running. Connection details are shown below. By default, it is only accessible from this server."
+  },
+
+  "release_channel": "stable",
+
+  "upgrade": {
+    "strategy": "rolling",
+    "backup_volumes": true,
+    "breaking_versions": []
+  }
+}
