@@ -14,7 +14,7 @@ services:
     volumes:
       - redis_data:/data
     ports:
-      - "127.0.0.1:{{ ports.redis }}:6379"
+      - "0.0.0.0:{{ ports.redis }}:6379"
     healthcheck:
       test: ["CMD-SHELL", "redis-cli -a \"${REDIS_PASSWORD}\" ping | grep PONG"]
       interval: 10s
