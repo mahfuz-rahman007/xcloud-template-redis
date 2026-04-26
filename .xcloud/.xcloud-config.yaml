@@ -1,0 +1,67 @@
+# xCloud OneClick Template Manifest — schema_version: 1
+# yaml-language-server: $schema=https://docs.xcloud.host/schemas/xcloud-template.v1.json
+schema_version: 1
+slug: redis
+name: Redis
+description: 'In-memory data store for caching, queues, pub/sub, and fast key-value workloads.'
+version: 1.0.0
+app_version: '8.6'
+icon: assets/icon.png
+category: database
+service_class: data_service
+runtime: docker_compose
+tags:
+  - database
+  - cache
+  - redis
+  - key-value
+  - queue
+files:
+  compose: docker-compose.yml.tpl
+  env: .env.tpl
+requirements:
+  min_ram_mb: 256
+  min_cpu_cores: 1
+  min_disk_gb: 1
+  stack:
+    - docker_nginx
+ports:
+  redis:
+    description: 'Redis connection'
+    container_port: 6379
+    proxy: false
+fields:
+  -
+    key: admin_password
+    label: 'Redis Password'
+    type: password
+    required: true
+    validation: 'string|min:8|max:64'
+    generate: true
+    generate_length: 24
+    group: credentials
+field_groups:
+  -
+    key: credentials
+    label: 'Connection Credentials'
+    icon: 'xcloud xc-key'
+volumes:
+  persistent:
+    - redis_data
+credentials:
+  type: connection_string
+  template: 'redis://:{{ admin_password }}@{{ server_ip }}:{{ ports.redis }}/0'
+  display:
+    -
+      label: Host
+      value: '{{ server_ip }}'
+    -
+      label: Port
+      value: '{{ ports.redis }}'
+    -
+      label: Password
+      value: '{{ admin_password }}'
+      secret: true
+  copyable: 'redis://:{{ admin_password }}@{{ server_ip }}:{{ ports.redis }}/0'
+post_install:
+  message: 'Redis is running. Connection details are shown below. Restrict network access with your firewall before exposing it to untrusted clients.'
