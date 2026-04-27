@@ -49,9 +49,10 @@ volumes:
   persistent:
     - redis_data
 credentials:
-  type: connection_string
-  template: 'redis://:{{ admin_password }}@{{ server_ip }}:{{ ports.redis }}/0'
   display:
+    -
+      label: 'Connection String'
+      value: 'redis://:{{ admin_password }}@{{ server_ip }}:{{ ports.redis }}/0'
     -
       label: Host
       value: '{{ server_ip }}'
@@ -62,6 +63,5 @@ credentials:
       label: Password
       value: '{{ admin_password }}'
       secret: true
-  copyable: 'redis://:{{ admin_password }}@{{ server_ip }}:{{ ports.redis }}/0'
 post_install:
   message: 'Redis is running. Connection details are shown below. Restrict network access with your firewall before exposing it to untrusted clients.'
